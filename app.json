@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Feeds",
+    "icon": "./resources/icons/app.png",
+    "slug": "aduFeeds",
+    "version": "1.0.1",
+    "sdkVersion": "27.0.0",
+    "scheme": "alexdufeeds",
+    "android":{
+      "package": "com.adu.feeds"
+    },
+    "privacy": "public"
+  }
+}
