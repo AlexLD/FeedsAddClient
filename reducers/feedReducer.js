@@ -1,4 +1,5 @@
-import { GET_CACHED_FEEDS_HOME, GET_CACHED_FEEDS_ME, BEGIN_FETCH_ME, BEGIN_FETCH_HOME, FETCH_FEEDS_HOME, FETCH_FEEDS_ME, POST_FEED} from '../actions';
+import { GET_CACHED_FEEDS_HOME, GET_CACHED_FEEDS_ME, BEGIN_FETCH_ME, BEGIN_FETCH_HOME, FETCH_FEEDS_HOME, 
+    FETCH_FEEDS_ME, POST_FEED, BEGIN_FETCH_MORE_ME, BEGIN_FETCH_MORE_HOME, FETCH_MORE_FEEDS_ME, FETCH_MORE_FEEDS_HOME} from '../actions';
 import { ListView } from 'react-native';
 
 const ds = new ListView.DataSource({rowHasChanged:(r1,r2)=>r1!==r2});
@@ -9,6 +10,9 @@ const initialState = {
     dataSource:ds.cloneWithRows([]),
     errMsg:"",
     showGetStarted:false,
+    twitter_max_id: '',
+    fb_nextUrl: '',
+    isLoadingMore: false,
 }
 
 /**
@@ -31,6 +35,24 @@ export const profileFeedReducer = (state=initialState, action) => {
                 showGetStarted: action.payload.showGetStarted,
                 errMsg: action.payload.errMsg,
                 dataSource: ds.cloneWithRows(action.payload.feeds),
+                twitter_max_id: action.payload.twitter_max_id,
+                fb_nextUrl: action.payload.fb_nextUrl,
+            }
+        case BEGIN_FETCH_MORE_ME:
+            return {
+                ...state,
+                isLoadingMore:true,
+            }
+        case FETCH_MORE_FEEDS_ME:
+            return {
+                ...state,
+                feeds: action.payload.feeds,
+                isLoadingMore: false,
+                showGetStarted: action.payload.showGetStarted,
+                errMsg: action.payload.errMsg,
+                dataSource: ds.cloneWithRows(action.payload.feeds?action.payload.feeds:[]),
+                twitter_max_id: action.payload.twitter_max_id,
+                fb_nextUrl: action.payload.fb_nextUrl,
             }
         case POST_FEED:
             return state;
@@ -59,6 +81,24 @@ export const homeFeedReducer = (state=initialState, action) => {
                 showGetStarted: action.payload.showGetStarted,
                 errMsg: action.payload.errMsg,
                 dataSource: ds.cloneWithRows(action.payload.feeds),
+                twitter_max_id: action.payload.twitter_max_id,
+                fb_nextUrl: action.payload.fb_nextUrl,
+            }
+        case BEGIN_FETCH_MORE_HOME:
+            return {
+                ...state,
+                isLoadingMore:true,
+            }
+        case FETCH_MORE_FEEDS_HOME:
+            return {
+                ...state,
+                feeds: action.payload.feeds,
+                isLoadingMore: false,
+                showGetStarted: action.payload.showGetStarted,
+                errMsg: action.payload.errMsg,
+                dataSource: ds.cloneWithRows(action.payload.feeds),
+                twitter_max_id: action.payload.twitter_max_id,
+                fb_nextUrl: action.payload.fb_nextUrl,
             }
         case POST_FEED:
             return state;

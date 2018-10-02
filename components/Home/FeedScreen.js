@@ -6,7 +6,7 @@ import AppHeader from './AppHeader';
 import FeedCard from './FeedCard';
 import GetStarted from './GetStarted';
 import Theme from '../../styles/theme';
-import { fetchFeeds, getCachedFeeds } from '../../actions/feedActions';
+import { fetchFeeds, getCachedFeeds, fetchMore } from '../../actions/feedActions';
 
 class FeedScreen extends React.Component{
     constructor(props){
@@ -14,7 +14,6 @@ class FeedScreen extends React.Component{
         this.ds = new ListView.DataSource({rowHasChanged:(r1,r2)=>r1!==r2});
         this.state = {
             contactUs:false,
-            isLoadingMore:false,
             user:"",
         };
         this.timer = undefined;
@@ -41,10 +40,7 @@ class FeedScreen extends React.Component{
 
     onLoadMore = ()=>{
         if(this.props.errMsg || this.props.showGetStarted) return;
-        this.setState({isLoadingMore:true});
-        this.timer = setTimeout(() => {
-            this.setState({isLoadingMore:false});
-        }, 3000);
+        this.props.fetchMore();
     }
 
     renderRow = (feed)=>{
@@ -80,7 +76,7 @@ class FeedScreen extends React.Component{
                         renderRow={this.renderRow}
                         enableEmptySections={true}
                         renderFooter={()=>(
-                            this.state.isLoadingMore &&
+                            this.props.isLoadingMore &&
                             <View>
                                 <ActivityIndicator size="small"/>
                             </View>
@@ -108,6 +104,7 @@ class FeedScreen extends React.Component{
 const mapStateToProps = (state, ownProps) =>({
     feeds: ownProps.isProfileScreen? state.profileFeedReducer.feeds: state.homeFeedReducer.feeds,
     isLoading: ownProps.isProfileScreen? state.profileFeedReducer.isLoading: state.homeFeedReducer.isLoading,
+    isLoadingMore: ownProps.isProfileScreen? state.profileFeedReducer.isLoadingMore: state.homeFeedReducer.isLoadingMore,
     showGetStarted: ownProps.isProfileScreen? state.profileFeedReducer.showGetStarted: state.homeFeedReducer.showGetStarted,
     errMsg: ownProps.isProfileScreen? state.profileFeedReducer.errMsg: state.homeFeedReducer.errMsg,
     dataSource: ownProps.isProfileScreen? state.profileFeedReducer.dataSource: state.homeFeedReducer.dataSource,
@@ -116,6 +113,7 @@ const mapStateToProps = (state, ownProps) =>({
 const mapDispatchToProps = (dispatch, ownProps)=>({
     fetchFeeds: ()=> dispatch(fetchFeeds(ownProps.isProfileScreen)),
     getCachedFeeds: () => dispatch(getCachedFeeds(ownProps.isProfileScreen)),
+    fetchMore: ()=> dispatch(fetchMore(ownProps.isProfileScreen)),
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedScreen);

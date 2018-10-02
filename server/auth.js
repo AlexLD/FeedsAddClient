@@ -24,7 +24,7 @@ export const login = (username, password)=>{
     return new Promise((resolve,reject)=>{
         const timeout = setTimeout(() => {
             didTimeOut=true;
-            reject(new Error('Request timed out'));
+            reject(new Error('Request timed out.'));
         }, FETCH_TIMEOUT);
 
         const url = config.endpoint + '/Login';
