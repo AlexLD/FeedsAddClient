@@ -43,11 +43,11 @@ function beginRequestMore(isProfileScreen){
 export const fetchFeeds = (isProfileScreen)=> dispatch => {
     let feeds = [];
     let twitter_max_id = undefined;
-    let fb_nextUrl = undefined;
+    let fb_max_time = undefined;
     dispatch(beginRequest(isProfileScreen));
 
     let actionType = isProfileScreen?FETCH_FEEDS_ME: FETCH_FEEDS_HOME;
-    fetchAction(isProfileScreen, actionType, feeds, twitter_max_id, fb_nextUrl, dispatch);
+    fetchAction(isProfileScreen, actionType, feeds, twitter_max_id, fb_max_time, dispatch);
 }
 
 /**
@@ -56,23 +56,27 @@ export const fetchFeeds = (isProfileScreen)=> dispatch => {
  */
 export const fetchMore = (isProfileScreen) => (dispatch, getState) => {
     let feeds = [];
-    let twitter_max_id = undefined;
-    let fb_nextUrl = undefined;
+    let twitter_max_id = '';
+    let fb_max_time = '';
         
+    let state = isProfileScreen? getState().profileFeedReducer: getState().homeFeedReducer;
+    if(state.isLoadingMore){   //preventing load more getting trigger twice at once
+        return;
+    }
+
     dispatch(beginRequestMore(isProfileScreen));
 
-    let state = isProfileScreen? getState().profileFeedReducer: getState().homeFeedReducer;
     if(state.twitter_max_id){
         twitter_max_id = state.twitter_max_id;
     }
-    if(state.fb_nextUrl){
-        fb_nextUrl = state.fb_nextUrl;
+    if(state.fb_max_time){
+        fb_max_time = state.fb_max_time;
     }
     if(state.feeds && state.feeds.length>0){
         feeds = state.feeds;
     }
     let actionType = isProfileScreen?FETCH_MORE_FEEDS_ME: FETCH_MORE_FEEDS_HOME;
-    fetchAction(isProfileScreen, actionType, feeds, twitter_max_id, fb_nextUrl, dispatch);
+    fetchAction(isProfileScreen, actionType, feeds, twitter_max_id, fb_max_time, dispatch);
 }
 
 /**
@@ -81,12 +85,12 @@ export const fetchMore = (isProfileScreen) => (dispatch, getState) => {
  * @param actionType determines the action to be dispatched
  * @param feeds prepopulated with existing feeds if the action is fetchMore
  * @param twitter_max_id last twitter id fetched
- * @param fb_nextUrl next facebook url to call
+ * @param fb_max_time last time until which to fetch fb feeds
  * @param dispatch dispatcher
  */
-function fetchAction(isProfileScreen, actionType, feeds, twitter_max_id, fb_nextUrl, dispatch) {
+function fetchAction(isProfileScreen, actionType, feeds, twitter_max_id, fb_max_time, dispatch) {
     let payload = {};
-    load_timeline(isProfileScreen, twitter_max_id, fb_nextUrl).then(result=>{
+    load_timeline(isProfileScreen, twitter_max_id, fb_max_time).then(result=>{
         if(!result.success){
             //requireAuth: no authorization available
             //error: 89 expired token, 215 wrong token, 190 facebook token expired
@@ -95,10 +99,9 @@ function fetchAction(isProfileScreen, actionType, feeds, twitter_max_id, fb_next
                     showGetStarted:true,
                     feeds: feeds,
                     twitter_max_id: twitter_max_id,
-                    fb_nextUrl: fb_nextUrl,
+                    fb_max_time: fb_max_time,
                 }
             }
-            
             dispatch({
                 type: actionType,
                 payload: payload,
@@ -106,8 +109,9 @@ function fetchAction(isProfileScreen, actionType, feeds, twitter_max_id, fb_next
             return;
         }
         
-        let array = result.result.array;
-        let addtlInfo = result.result.additionalInfo;
+        let array = result.result;
+        let twMaxId = '';
+        let fbMaxTm = '';
         array.forEach(obj => {
             let post = {
                 id: obj.id,
@@ -120,22 +124,18 @@ function fetchAction(isProfileScreen, actionType, feeds, twitter_max_id, fb_next
                 full_picture: obj.contentImage,
             }
             feeds.push(post);
-        });
-
-        addtlInfo.forEach(info=>{
-            if(info.max_id){
-                twitter_max_id = info.max_id;
-            }else if(info.nextUrl){
-                fb_nextUrl = info.nextUrl;
+            if(obj.type==1){
+                twMaxId = obj.id;
+            }else if(obj.type==2){
+                fbMaxTm = obj.time_UTC/1000;
             }
-        })
-        
+        });
         payload = {
             feeds: feeds,
             errMsg: "",
             showGetStarted: false,
-            twitter_max_id: twitter_max_id,
-            fb_nextUrl: fb_nextUrl,
+            twitter_max_id: twMaxId,
+            fb_max_time: fbMaxTm,
         }
         dispatch({
             type: actionType,

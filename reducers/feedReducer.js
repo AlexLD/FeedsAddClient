@@ -11,7 +11,7 @@ const initialState = {
     errMsg:"",
     showGetStarted:false,
     twitter_max_id: '',
-    fb_nextUrl: '',
+    fb_max_time: '',
     isLoadingMore: false,
 }
 
@@ -34,9 +34,9 @@ export const profileFeedReducer = (state=initialState, action) => {
                 isLoading: false,
                 showGetStarted: action.payload.showGetStarted,
                 errMsg: action.payload.errMsg,
-                dataSource: ds.cloneWithRows(action.payload.feeds),
+                dataSource: ds.cloneWithRows(action.payload.feeds?action.payload.feeds:[]),
                 twitter_max_id: action.payload.twitter_max_id,
-                fb_nextUrl: action.payload.fb_nextUrl,
+                fb_max_time: action.payload.fb_max_time,
             }
         case BEGIN_FETCH_MORE_ME:
             return {
@@ -52,7 +52,7 @@ export const profileFeedReducer = (state=initialState, action) => {
                 errMsg: action.payload.errMsg,
                 dataSource: ds.cloneWithRows(action.payload.feeds?action.payload.feeds:[]),
                 twitter_max_id: action.payload.twitter_max_id,
-                fb_nextUrl: action.payload.fb_nextUrl,
+                fb_max_time: action.payload.fb_max_time,
             }
         case POST_FEED:
             return state;
@@ -80,9 +80,9 @@ export const homeFeedReducer = (state=initialState, action) => {
                 isLoading: false,
                 showGetStarted: action.payload.showGetStarted,
                 errMsg: action.payload.errMsg,
-                dataSource: ds.cloneWithRows(action.payload.feeds),
+                dataSource: ds.cloneWithRows(action.payload.feeds?action.payload.feeds:[]),
                 twitter_max_id: action.payload.twitter_max_id,
-                fb_nextUrl: action.payload.fb_nextUrl,
+                fb_max_time: action.payload.fb_max_time,
             }
         case BEGIN_FETCH_MORE_HOME:
             return {
@@ -96,9 +96,9 @@ export const homeFeedReducer = (state=initialState, action) => {
                 isLoadingMore: false,
                 showGetStarted: action.payload.showGetStarted,
                 errMsg: action.payload.errMsg,
-                dataSource: ds.cloneWithRows(action.payload.feeds),
+                dataSource: ds.cloneWithRows(action.payload.feeds?action.payload.feeds:[]),
                 twitter_max_id: action.payload.twitter_max_id,
-                fb_nextUrl: action.payload.fb_nextUrl,
+                fb_max_time: action.payload.fb_max_time,
             }
         case POST_FEED:
             return state;
