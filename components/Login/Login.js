@@ -16,6 +16,9 @@ export default class Login extends Component {
     };
   }
 
+  /**
+   * user automatically logged in if didn't log out previously
+   */
   componentWillMount(){
     AsyncStorage.getItem('jwt').then(value=>{
       if(value!==null){

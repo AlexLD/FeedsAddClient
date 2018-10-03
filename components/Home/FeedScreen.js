@@ -14,35 +14,47 @@ class FeedScreen extends React.Component{
         this.ds = new ListView.DataSource({rowHasChanged:(r1,r2)=>r1!==r2});
         this.state = {
             contactUs:false,
-            user:"",
+            //user:"",
         };
-        this.timer = undefined;
     }
+    /**
+     * we'll potentially need user info later on
+     */
+    /*
     componentWillMount(){
         AsyncStorage.getItem('user_id').then((value)=>{
             this.setState({user:value});
         })
-    }
+    }*/
+
+    /**
+     * automatically load cached feeds on load (or load from server if there's no cache)
+     */
     componentDidMount(){
         this.props.getCachedFeeds();
-    }
-    componentWillUnmount(){
-        clearTimeout(this.timer);
     }
 
     fetchData = ()=>{
         this.props.fetchFeeds();
     }
 
+    /**
+     * refreshing simply fetches data
+     */
     onRefresh = ()=>{
         this.fetchData();
     }
 
+    /**
+     * when there's error or Get Started screen is displayed, load more is disabled
+     */
     onLoadMore = ()=>{
         if(this.props.errMsg || this.props.showGetStarted) return;
         this.props.fetchMore();
     }
-
+    /**
+     * Each feed is a FeedCard
+     */
     renderRow = (feed)=>{
         return (
             <FeedCard

@@ -3,7 +3,7 @@ import { GET_CACHED_FEEDS_HOME, GET_CACHED_FEEDS_ME, BEGIN_FETCH_ME, BEGIN_FETCH
 import { load_timeline } from '../server/loadContent';
 
 /**
- * Load feeds from cached state instead of fetching from server
+ * Load feeds from cached state if available instead of fetching from server
  */
 export const getCachedFeeds = (isProfileScreen) => (dispatch, getState) =>{
     let state = isProfileScreen? getState().profileFeedReducer: getState().homeFeedReducer;
@@ -16,18 +16,30 @@ export const getCachedFeeds = (isProfileScreen) => (dispatch, getState) =>{
     }
 }
 
+/**
+ * trigger an update on the isLoading state, so that the spinner shows
+ * @param isProfileScreen determines which state (screen) to update
+ */
 function beginRequest(isProfileScreen){
     return {
         type: isProfileScreen? BEGIN_FETCH_ME: BEGIN_FETCH_HOME,
     }
 }
 
+/**
+ * trigger an update on the isLoading state, so that the spinner shows
+ * @param isProfileScreen determines which state (screen) to update
+ */
 function beginRequestMore(isProfileScreen){
     return {
         type: isProfileScreen? BEGIN_FETCH_MORE_ME: BEGIN_FETCH_MORE_HOME,
     }
 }
 
+/**
+ * load feeds from server
+ * @param isProfileScreen determines whether to load home timeline or user timeline
+ */
 export const fetchFeeds = (isProfileScreen)=> dispatch => {
     let feeds = [];
     let twitter_max_id = undefined;
@@ -38,6 +50,10 @@ export const fetchFeeds = (isProfileScreen)=> dispatch => {
     fetchAction(isProfileScreen, actionType, feeds, twitter_max_id, fb_nextUrl, dispatch);
 }
 
+/**
+ * load more feeds when user scrolls to the bottom of screen
+ * @param isProfileScreen determines whether to load home timeline or user timeline
+ */
 export const fetchMore = (isProfileScreen) => (dispatch, getState) => {
     let feeds = [];
     let twitter_max_id = undefined;

@@ -20,6 +20,9 @@ export default class Accounts extends Component {
         };
     }
 
+    /**
+     * load oauth tokens so that the buttons can be properly generated
+     */
     componentWillMount(){
         AsyncStorage.getItem("oauth").then(value=>{
             if(value!==null){
@@ -29,12 +32,18 @@ export default class Accounts extends Component {
             }
         })
     }
+    /**
+     * listen to callback from Twitter during OAuth token request process
+     */
     componentDidMount(){
         Linking.addEventListener('url',this.urlHandler);
     }
     componentWillUnmount(){
         Linking.removeEventListener('url',this.urlHandler);
     }
+    /**
+     * open a browser for the Twitter page
+     */
     urlHandler = (event)=>{
         WebBrowser.dismissBrowser();
         handleOAuthCallback(event).then(()=>{
@@ -57,6 +66,9 @@ export default class Accounts extends Component {
         });
     }
 
+    /**
+     * handle Add Account button clicks
+     */
     addAccount = (account, forceRequest)=>{
         if(account == 1){
             requestTwitterToken(forceRequest).then(result=>{
@@ -72,6 +84,9 @@ export default class Accounts extends Component {
         
     }
 
+    /**
+     * Use Expo's Facebook module for for token request
+     */
     facebookLogin = ()=>{
         Facebook.logInWithReadPermissionsAsync(config.FB_APP_ID,{
             permissions:['email','user_posts','user_photos'],
@@ -93,6 +108,9 @@ export default class Accounts extends Component {
         alert(`Not implemented yet. Remove authorization from your ${account==1?'Twitter':'Facebook'} account`);
     }
 
+    /**
+     * reloads oauth statues from server in case things have changed
+     */
     onRefresh = ()=>{
         this.setState({refreshing:true});
         getAllOAuthTokens().then(result=>{
@@ -107,6 +125,15 @@ export default class Accounts extends Component {
         })
     }
 
+    /**
+     * render the Add/Remove buttons for twitter facebook account
+     * @param logo Twitter log or Facebook logo
+     * @param color color of the logo
+     * @param text text to display next to logo
+     * @param tokenExist do we have a token for the account?
+     * @param tokenValid if yes, is it still valid?
+     * @param accountNo 1 for twitter, 2 for facebook
+     */
     renderAccount(logo, color, text, tokenExist, tokenValid, accountNo){
         return(
             <CardItem>
